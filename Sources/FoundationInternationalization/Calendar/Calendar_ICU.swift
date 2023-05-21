@@ -1159,11 +1159,7 @@ internal final class _Calendar: Equatable, @unchecked Sendable {
 
             for i in 0..<7 {
                 var status = U_ZERO_ERROR
-#if os(Windows)
-                weekdayTypes[i] = ucal_getDayOfWeekType(ucalendar, UCalendarDaysOfWeek(rawValue: CInt(weekdaysIndex[i])), &status)
-#else
-                weekdayTypes[i] = ucal_getDayOfWeekType(ucalendar, UCalendarDaysOfWeek(rawValue: CUnsignedInt(weekdaysIndex[i])), &status)
-#endif
+                weekdayTypes[i] = ucal_getDayOfWeekType(ucalendar, UCalendarDaysOfWeek(CInt(weekdaysIndex[i])), &status)
                 if weekdayTypes[i] == UCAL_WEEKEND_ONSET {
                     onset = weekdaysIndex[i]
                 } else if weekdayTypes[i] == UCAL_WEEKEND_CEASE {
