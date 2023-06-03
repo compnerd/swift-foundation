@@ -1138,7 +1138,10 @@ final class JSONEncoderTests : XCTestCase {
         _test(JSONString: "[\"本日\"]", to: ["本日"])
     }
 
-    func test_JSONUnicodeEscapes() {
+    func test_JSONUnicodeEscapes() throws {
+#if os(Linux)
+        throw XCTSkip("current development swift builds cause a stack overflow")
+#endif
         let testCases = [
             // e-acute and greater-than-or-equal-to
             "\"\\u00e9\\u2265\"" : "é≥",
@@ -1358,24 +1361,30 @@ final class JSONEncoderTests : XCTestCase {
         if let localePtr = setlocale(LC_ALL, nil) {
             currentLocale = strdup(localePtr)
         }
-        
+
+        defer {
+            if let currentLocale {
+                setlocale(LC_ALL, currentLocale)
+                free(currentLocale)
+            }
+        }
+
         let orig = ["decimalValue" : 1.1]
 
         do {
             setlocale(LC_ALL, "fr_FR")
             let data = try JSONEncoder().encode(orig)
 
+#if os(Windows)
+            setlocale(LC_ALL, "en_US")
+#else
             setlocale(LC_ALL, "en_US_POSIX")
+#endif
             let decoded = try JSONDecoder().decode(type(of: orig).self, from: data)
 
             XCTAssertEqual(orig, decoded)
         } catch {
             XCTFail("Error: \(error)")
-        }
-        
-        if let currentLocale {
-            setlocale(LC_ALL, currentLocale)
-            currentLocale.deallocate()
         }
     }
 
