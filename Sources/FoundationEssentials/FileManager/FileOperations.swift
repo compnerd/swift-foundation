@@ -788,7 +788,7 @@ enum _FileOperations {
         try src.withNTPathRepresentation { pwszSource in
             var faAttributes: WIN32_FILE_ATTRIBUTE_DATA = .init()
             guard GetFileAttributesExW(pwszSource, GetFileExInfoStandard, &faAttributes) else {
-                throw CocoaError.copyFileError(GetLastError(), src, dst)
+                throw CocoaError.errorWithFilePath(.fileReadNoSuchFile, src)
             }
 
             try dst.withNTPathRepresentation { pwszDestination in
